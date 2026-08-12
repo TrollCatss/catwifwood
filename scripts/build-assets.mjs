@@ -112,23 +112,9 @@ async function keepDark(input, cutoff) {
   return sharp(raw, { raw: { width, height, channels: 4 } }).png()
 }
 
-// Photo-keying the tail out of the logo leaves fur noise that reads as dirt
-// at cursor size, so the cursor is drawn as a vector modelled on that tail.
-// keepDark stays available for pulling the tail out at poster sizes.
+// keepDark stays available for pulling the tail out of the logo at poster
+// sizes, where the fur detail survives.
 void keepDark
-
-await sharp(join(process.cwd(), 'assets', 'tail-cursor.svg'))
-  .resize({ height: 48, fit: 'inside' })
-  .png()
-  .toFile(join(ART, 'tail-cursor.png'))
-console.log('✓ public/art/tail-cursor.png')
-
-// A larger one for the trailing cursor-follower on desktop.
-await sharp(join(process.cwd(), 'assets', 'tail-cursor.svg'))
-  .resize({ height: 96, fit: 'inside' })
-  .png()
-  .toFile(join(ART, 'tail-large.png'))
-console.log('✓ public/art/tail-large.png')
 
 // 3. Product shots come off the generator on a near-white studio sweep that
 //    reads as a visible grey square against the page. Same edge flood fill,
@@ -167,7 +153,38 @@ for (const { name, cutout } of PRODUCTS) {
   }
 }
 
-// 4. Favicon: square crop around the cat, padded so it reads at 16px.
+// 4. Mouse cursor: the fur off the strap, which is already cut out by the step
+//    above. A drawn tail read as a microphone at this size — a straight
+//    tapered cylinder is exactly that silhouette — so this uses the real fur.
+//    The cord, chrome ferrule and tag are cropped off, and the whole thing is
+//    turned so the narrow tip leads, giving the pointer something to aim with.
+{
+  const strap = join(ART, 'tail-strap.png')
+  const { width, height } = await sharp(strap).metadata()
+
+  // The cord, ferrule and tag all sit above the fur, and the tail sweeps out
+  // to the right, so this crops by height only — narrowing it would clip the
+  // tip off the curve.
+  const top = Math.round(height * 0.5)
+  const fur = await sharp(strap)
+    .extract({ left: 0, top, width, height: height - top })
+    .trim({ threshold: 1 })
+    .toBuffer()
+
+  await sharp(fur)
+    .resize({ height: 46, fit: 'inside' })
+    .png()
+    .toFile(join(ART, 'tail-cursor.png'))
+  console.log('✓ public/art/tail-cursor.png')
+
+  await sharp(fur)
+    .resize({ height: 96, fit: 'inside' })
+    .png()
+    .toFile(join(ART, 'tail-large.png'))
+  console.log('✓ public/art/tail-large.png')
+}
+
+// 5. Favicon: square crop around the cat, padded so it reads at 16px.
 await (await transparentize(SRC))
   .trim({ threshold: 1 })
   .resize(448, 448, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
