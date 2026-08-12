@@ -1,8 +1,18 @@
+import type { Metadata } from 'next'
 import './globals.css'
 
-export const metadata = {
-  title: '$WOOD - The Cat Tail That Wags the Market',
-  description: 'The most elite cat-themed merchandise and ecosystem on Robinhood Chain 4663',
+export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? 'https://catwifwood.vercel.app',
+  ),
+  title: 'catwifwood — $WOOD',
+  description:
+    'The tail that wags the market. $WOOD, launching on Robinhood Chain 4663.',
+  openGraph: {
+    title: 'catwifwood — $WOOD',
+    description: 'The tail that wags the market. Robinhood Chain 4663.',
+    images: ['/art/logo.png'],
+  },
 }
 
 export default function RootLayout({
@@ -12,9 +22,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-white dark:bg-black text-black dark:text-white">
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   )
 }

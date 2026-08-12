@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --wood: #16a34a;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -13,11 +17,31 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+
+  /* The pointer is a stiff cat tail. Hotspot sits at the tip. */
+  cursor: url('/art/tail-cursor.png') 12 2, auto;
+}
+
+a,
+button,
+summary,
+[role='button'] {
+  cursor: url('/art/tail-cursor.png') 12 2, pointer;
+}
+
+/* Coarse pointers have no cursor to restyle, and touch users would just pay
+   the download for nothing. */
+@media (pointer: coarse) {
+  body,
+  a,
+  button,
+  summary,
+  [role='button'] {
+    cursor: auto;
+  }
 }
 
 a {
@@ -31,10 +55,97 @@ button {
   font-family: inherit;
 }
 
-/* Scrollbar styling */
+/* --- Animations ------------------------------------------------------- */
+
+/* Hero cat breathes / bobs in place. */
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(-0.4deg);
+  }
+}
+
+/* The tail twitches, because that is the entire point of this coin. */
+@keyframes wag {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.5;
+  }
+  70% {
+    transform: scale(1.25);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.anim-bob {
+  animation: bob 5s ease-in-out infinite;
+}
+
+.anim-wag {
+  transform-origin: top center;
+  animation: wag 2.2s ease-in-out infinite;
+}
+
+.anim-marquee {
+  animation: marquee 26s linear infinite;
+}
+
+.anim-rise {
+  animation: rise 0.7s ease-out both;
+}
+
+.anim-ring {
+  animation: pulse-ring 2.6s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-bob,
+  .anim-wag,
+  .anim-marquee,
+  .anim-rise,
+  .anim-ring {
+    animation: none;
+  }
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 9px;
 }
 
 ::-webkit-scrollbar-track {
@@ -42,10 +153,6 @@ button {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #22c55e;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #16a34a;
+  background: var(--wood);
+  border-radius: 5px;
 }

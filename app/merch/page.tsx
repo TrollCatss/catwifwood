@@ -1,257 +1,227 @@
 'use client'
 
-import Link from 'next/link'
-import { useState } from 'react'
+import Image from 'next/image'
+import { useMemo, useState } from 'react'
+import Nav from '../components/Nav'
 
-interface CartItem {
+type Product = {
   id: string
   name: string
   price: number
-  quantity: number
+  blurb: string
+  art: string
+  status: 'IN STOCK' | 'PRE-ORDER' | 'COMING SOON'
 }
 
-const PRODUCTS = [
+const PRODUCTS: Product[] = [
   {
-    id: 'cat-tail-strap',
+    id: 'tail-strap',
     name: 'Cat Tail Strap',
     price: 9.99,
-    description: '100% REAL CAT TAIL - Boosts Your Bag - Diamond Hands Only',
-    emoji: '🐈‍⬛',
+    blurb: 'The tail that wags the market. Hangs off your phone.',
+    art: '/art/tail-strap.png',
     status: 'IN STOCK',
-    rarity: 'LEGENDARY'
   },
   {
-    id: 'wood-hoodie',
+    id: 'hoodie',
     name: '$WOOD Hoodie',
     price: 49.99,
-    description: 'Premium comfort • Peak meme energy • Unironically wearable',
-    emoji: '🧥',
+    blurb: 'Heavyweight black fleece. Quietly says everything.',
+    art: '/art/hoodie.png',
     status: 'PRE-ORDER',
-    rarity: 'RARE'
   },
   {
-    id: 'diamond-hands-gloves',
-    name: 'Diamond Hands Gloves',
-    price: 29.99,
-    description: 'Literally diamond-textured • Never paperhand again • HODL in style',
-    emoji: '💎',
-    status: 'COMING SOON',
-    rarity: 'EPIC'
+    id: 'tshirt',
+    name: '$WOOD Tee',
+    price: 19.99,
+    blurb: 'Heavy cotton. Boxy cut. Ships in a plain bag.',
+    art: '/art/tshirt.png',
+    status: 'IN STOCK',
   },
   {
-    id: 'cat-hat',
+    id: 'beanie',
     name: 'Cat Ear Beanie',
     price: 24.99,
-    description: 'Functional cat ears • Flex on the plebs • Stealth homeless chic',
-    emoji: '🧢',
+    blurb: 'Chunky ribbed knit with ears. Warm. Committed.',
+    art: '/art/beanie.png',
     status: 'IN STOCK',
-    rarity: 'RARE'
   },
   {
-    id: 'tail-keychain',
+    id: 'keychain',
     name: 'Tiny Tail Keychain',
     price: 4.99,
-    description: 'Portable cat tail • Backpack essential • Jealous normie attractor',
-    emoji: '🔑',
+    blurb: 'A smaller tail, for the understated holder.',
+    art: '/art/keychain.png',
     status: 'IN STOCK',
-    rarity: 'COMMON'
   },
   {
-    id: 'wood-shirt',
-    name: '$WOOD T-Shirt',
-    price: 19.99,
-    description: 'Unisex • All sizes • 100% pure gigachad energy',
-    emoji: '👕',
-    status: 'IN STOCK',
-    rarity: 'UNCOMMON'
+    id: 'gloves',
+    name: 'Diamond Hands Gloves',
+    price: 29.99,
+    blurb: 'Faceted palms. Structurally incapable of selling.',
+    art: '/art/gloves.png',
+    status: 'COMING SOON',
   },
 ]
 
 export default function MerchPage() {
-  const [cart, setCart] = useState<CartItem[]>([])
-  const [showCart, setShowCart] = useState(false)
+  const [cart, setCart] = useState<Record<string, number>>({})
 
-  const addToCart = (productId: string, productName: string, price: number) => {
-    const existing = cart.find(item => item.id === productId)
-    if (existing) {
-      setCart(cart.map(item =>
-        item.id === productId
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      ))
-    } else {
-      setCart([...cart, { id: productId, name: productName, price, quantity: 1 }])
-    }
-  }
+  const lines = useMemo(
+    () =>
+      Object.entries(cart)
+        .map(([id, qty]) => ({ product: PRODUCTS.find((p) => p.id === id)!, qty }))
+        .filter((l) => l.product),
+    [cart],
+  )
+  const total = lines.reduce((s, l) => s + l.product.price * l.qty, 0)
+  const count = lines.reduce((s, l) => s + l.qty, 0)
 
-  const removeFromCart = (productId: string) => {
-    setCart(cart.filter(item => item.id !== productId))
-  }
-
-  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0)
-
-  const getRarityColor = (rarity: string) => {
-    switch(rarity) {
-      case 'LEGENDARY': return 'from-yellow-400 to-orange-600'
-      case 'EPIC': return 'from-purple-500 to-pink-600'
-      case 'RARE': return 'from-blue-400 to-cyan-500'
-      case 'UNCOMMON': return 'from-green-400 to-emerald-500'
-      default: return 'from-gray-400 to-gray-600'
-    }
-  }
+  const add = (id: string) => setCart((c) => ({ ...c, [id]: (c[id] ?? 0) + 1 }))
+  const drop = (id: string) =>
+    setCart((c) => {
+      const next = { ...c }
+      if ((next[id] ?? 0) <= 1) delete next[id]
+      else next[id] -= 1
+      return next
+    })
 
   return (
-    <div className="min-h-screen">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-black text-green-600">$WOOD</Link>
-          <div className="space-x-6 flex items-center">
-            <Link href="/" className="hover:text-green-600 transition">Home</Link>
-            <Link href="/merch" className="hover:text-green-600 transition font-bold text-green-600">Merch</Link>
-            <button
-              onClick={() => setShowCart(!showCart)}
-              className="relative hover:text-green-600 transition"
-            >
-              🛒
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-                  {cartCount}
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-white text-black">
+      <Nav active="merch" />
 
-      {/* Header */}
-      <section className="pt-32 pb-12 px-4 bg-gradient-to-b from-green-50 to-white dark:from-green-950 dark:to-black">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-5xl font-black mb-4">
-            <span className="text-green-600">$WOOD</span> MERCH STORE
+      <section className="px-5 pb-10 pt-28">
+        <div className="mx-auto max-w-6xl">
+          <h1 className="text-[clamp(2.5rem,7vw,4.5rem)] font-black leading-none tracking-tighter">
+            THE <span className="text-green-600">MERCH</span>
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400">Flex your holdings • Support the project • Confuse your parents</p>
+          <p className="mt-4 max-w-xl text-lg text-neutral-600">
+            Real products. Real shipping. Explaining them to people is your
+            problem.
+          </p>
         </div>
       </section>
 
-      <div className="flex gap-8 max-w-7xl mx-auto px-4 py-8">
-        {/* Products Grid */}
-        <div className="flex-1">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
-            {PRODUCTS.map(product => (
-              <div key={product.id} className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-green-600 transition group">
-                {/* Rarity Header */}
-                <div className={`bg-gradient-to-r ${getRarityColor(product.rarity)} text-white p-3 font-bold text-sm text-center`}>
-                  {product.rarity} • {product.status}
+      <div className="mx-auto grid max-w-6xl gap-10 px-5 pb-24 lg:grid-cols-[1fr_320px]">
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {PRODUCTS.map((p) => {
+            const soon = p.status === 'COMING SOON'
+            return (
+              <article
+                key={p.id}
+                className="group overflow-hidden rounded-2xl border border-black/10 transition hover:border-green-600 hover:shadow-lg"
+              >
+                <div className="relative aspect-square bg-neutral-50">
+                  <Image
+                    src={p.art}
+                    alt={p.name}
+                    fill
+                    sizes="(max-width: 640px) 100vw, 320px"
+                    className="object-contain p-4 transition duration-300 group-hover:scale-105"
+                  />
+                  <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-neutral-700 ring-1 ring-black/10">
+                    {p.status}
+                  </span>
                 </div>
 
-                {/* Product Content */}
-                <div className="p-6">
-                  <div className="text-6xl mb-4 text-center group-hover:scale-110 transition">
-                    {product.emoji}
+                <div className="p-5">
+                  <h2 className="text-lg font-black">{p.name}</h2>
+                  <p className="mt-1 min-h-[40px] text-sm text-neutral-600">
+                    {p.blurb}
+                  </p>
+                  <div className="mt-4 flex items-center justify-between">
+                    <span className="text-2xl font-black text-green-600">
+                      ${p.price.toFixed(2)}
+                    </span>
+                    <button
+                      onClick={() => add(p.id)}
+                      disabled={soon}
+                      className={
+                        soon
+                          ? 'rounded-lg bg-neutral-200 px-4 py-2 text-sm font-bold text-neutral-500'
+                          : 'rounded-lg bg-green-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-green-700'
+                      }
+                    >
+                      {soon ? 'Soon' : 'Add'}
+                    </button>
                   </div>
-                  <h3 className="text-xl font-bold mb-2">{product.name}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{product.description}</p>
-
-                  <div className="flex items-baseline gap-2 mb-6">
-                    <span className="text-3xl font-black text-green-600">${product.price}</span>
-                    <span className="text-xs text-gray-500">(+ shipping)</span>
-                  </div>
-
-                  <button
-                    onClick={() => addToCart(product.id, product.name, product.price)}
-                    disabled={product.status === 'COMING SOON'}
-                    className={`w-full py-3 rounded-lg font-bold transition ${
-                      product.status === 'COMING SOON'
-                        ? 'bg-gray-300 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-not-allowed'
-                        : 'bg-green-600 hover:bg-green-700 text-white'
-                    }`}
-                  >
-                    {product.status === 'COMING SOON' ? 'COMING SOON' : 'ADD TO CART'}
-                  </button>
                 </div>
-              </div>
-            ))}
-          </div>
+              </article>
+            )
+          })}
         </div>
 
-        {/* Cart Sidebar */}
-        {showCart && (
-          <div className="w-80 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 h-fit sticky top-24 mt-4">
-            <h2 className="text-2xl font-black mb-6">YOUR BAG 💰</h2>
+        <aside className="h-fit rounded-2xl border border-black/10 p-5 lg:sticky lg:top-24">
+          <h2 className="text-xl font-black">
+            Your bag{count > 0 && <span className="text-green-600"> ({count})</span>}
+          </h2>
 
-            {cart.length === 0 ? (
-              <p className="text-gray-600 dark:text-gray-400 mb-6">Empty like your portfolio after 2022</p>
-            ) : (
-              <>
-                <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
-                  {cart.map(item => (
-                    <div key={item.id} className="flex justify-between items-start bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-                      <div>
-                        <p className="font-semibold">{item.name}</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">${item.price} × {item.quantity}</p>
-                      </div>
+          {lines.length === 0 ? (
+            <p className="mt-4 text-sm text-neutral-500">
+              Empty. Like the chart on a Sunday.
+            </p>
+          ) : (
+            <>
+              <ul className="mt-4 space-y-3">
+                {lines.map(({ product, qty }) => (
+                  <li
+                    key={product.id}
+                    className="flex items-center gap-3 rounded-xl bg-neutral-50 p-2.5"
+                  >
+                    <Image
+                      src={product.art}
+                      alt=""
+                      width={44}
+                      height={44}
+                      className="rounded-lg object-contain"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-bold">{product.name}</p>
+                      <p className="text-xs text-neutral-500">
+                        ${product.price.toFixed(2)} × {qty}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5">
                       <button
-                        onClick={() => removeFromCart(item.id)}
-                        className="text-red-600 hover:text-red-700 font-bold"
+                        onClick={() => drop(product.id)}
+                        aria-label={`Remove one ${product.name}`}
+                        className="h-6 w-6 rounded-md bg-white text-sm font-black ring-1 ring-black/10"
                       >
-                        ✕
+                        −
+                      </button>
+                      <button
+                        onClick={() => add(product.id)}
+                        aria-label={`Add one ${product.name}`}
+                        className="h-6 w-6 rounded-md bg-white text-sm font-black ring-1 ring-black/10"
+                      >
+                        +
                       </button>
                     </div>
-                  ))}
-                </div>
+                  </li>
+                ))}
+              </ul>
 
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mb-6">
-                  <div className="flex justify-between mb-4">
-                    <span className="font-bold">Subtotal:</span>
-                    <span className="font-bold text-green-600">${cartTotal.toFixed(2)}</span>
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    📍 Shipping: TBD • 🌍 Worldwide • 🚀 Soon
-                  </div>
-                </div>
+              <div className="mt-5 flex items-center justify-between border-t border-black/10 pt-4">
+                <span className="font-bold">Total</span>
+                <span className="text-2xl font-black text-green-600">
+                  ${total.toFixed(2)}
+                </span>
+              </div>
 
-                <button className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition mb-3">
-                  CHECKOUT 🚀
-                </button>
-                <button
-                  onClick={() => setShowCart(false)}
-                  className="w-full bg-gray-200 dark:bg-gray-700 text-black dark:text-white font-bold py-2 rounded-lg transition text-sm"
-                >
-                  Keep Shopping
-                </button>
-              </>
-            )}
-          </div>
-        )}
+              <button className="mt-4 w-full rounded-xl bg-green-600 py-3 font-bold text-white transition hover:bg-green-700">
+                Checkout
+              </button>
+              <p className="mt-3 text-center text-[11px] text-neutral-400">
+                Checkout isn&apos;t wired to a payment provider yet.
+              </p>
+            </>
+          )}
+        </aside>
       </div>
 
-      {/* Info Section */}
-      <section className="bg-gray-50 dark:bg-gray-900 py-12 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="font-black text-lg mb-3">📦 SHIPPING</h3>
-              <p className="text-gray-600 dark:text-gray-400">Ships from our very real, definitely not a garage, headquarters</p>
-            </div>
-            <div>
-              <h3 className="font-black text-lg mb-3">💎 QUALITY</h3>
-              <p className="text-gray-600 dark:text-gray-400">Premium materials • Actually legitimate • Your mom will ask where you got it</p>
-            </div>
-            <div>
-              <h3 className="font-black text-lg mb-3">🤝 COMMUNITY</h3>
-              <p className="text-gray-600 dark:text-gray-400">Every purchase supports the $WOOD ecosystem and our cat overlords</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-200 dark:border-gray-800 py-8 px-4">
-        <div className="max-w-7xl mx-auto text-center text-gray-600 dark:text-gray-400">
-          <p>© 2026 CATWIFWOOD • Made with 🐱 and degeneracy</p>
-        </div>
+      <footer className="border-t border-black/10 px-5 py-12 text-center text-sm text-neutral-500">
+        <p className="font-bold text-black">CATWIFWOOD — $WOOD</p>
+        <p className="mt-2">Robinhood Chain 4663</p>
       </footer>
     </div>
   )
