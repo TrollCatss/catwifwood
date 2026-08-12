@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import Nav from './components/Nav'
 import { SITE } from './site'
-import { TelegramIcon } from './components/icons'
+import Socials from './components/Socials'
 import StrapAd from './components/StrapAd'
 import TailWears from './components/TailWears'
 
@@ -188,29 +188,30 @@ export default function Home() {
           Posting the tail in hats. Arguing about the chart. It is going about as
           well as you would imagine.
         </p>
-        <a
-          href={SITE.links.telegram}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-9 inline-flex items-center gap-2.5 rounded-full bg-ink px-9 py-4 text-[11px] font-bold uppercase tracking-eyebrow text-paper transition hover:bg-wood"
-        >
-          <TelegramIcon className="h-4 w-4" />
-          Join on Telegram
-        </a>
+        <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+          <a
+            href={SITE.links.telegram}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2.5 rounded-full bg-ink px-9 py-4 text-[11px] font-bold uppercase tracking-eyebrow text-paper transition hover:bg-wood"
+          >
+            Join on Telegram
+          </a>
+          <a
+            href={SITE.links.x}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2.5 rounded-full border border-ink px-9 py-4 text-[11px] font-bold uppercase tracking-eyebrow transition hover:bg-ink hover:text-paper"
+          >
+            Follow on X
+          </a>
+        </div>
       </section>
 
       <footer className="border-t border-line px-6 py-16 text-center">
         <p className="font-serif text-3xl">{SITE.name}</p>
         <p className="eyebrow mt-3">{SITE.chain}</p>
-        <a
-          href={SITE.links.telegram}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-6 inline-flex items-center gap-2 text-sm text-muted transition hover:text-wood"
-        >
-          <TelegramIcon className="h-4 w-4" />
-          t.me/catwifwood
-        </a>
+        <Socials variant="labelled" className="mt-6" />
         <p className="mx-auto mt-6 max-w-md text-[11px] leading-relaxed text-muted/70">
           Not financial advice. This is a picture of a cat. Consult your own cat
           before investing, and respect his decision.

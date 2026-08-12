@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { useMemo, useState } from 'react'
 import Nav from '../components/Nav'
 import { SITE } from '../site'
-import { TelegramIcon } from '../components/icons'
+import Socials from '../components/Socials'
 
 type Product = {
   id: string
@@ -315,15 +315,7 @@ export default function MerchPage() {
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-2 text-center">
           <p className="font-serif text-2xl">{SITE.name}</p>
           <p className="eyebrow">{SITE.chain}</p>
-          <a
-            href={SITE.links.telegram}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-2 inline-flex items-center gap-2 text-sm text-muted transition hover:text-wood"
-          >
-            <TelegramIcon className="h-4 w-4" />
-            t.me/catwifwood
-          </a>
+          <Socials variant="labelled" className="mt-2" />
         </div>
       </footer>
     </div>
