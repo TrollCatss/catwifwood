@@ -4,8 +4,9 @@
  *
  * Usage:  VENICE_API_KEY=... node scripts/gen-art.mjs [name ...]
  *
- * Output lands in public/art/. Generated assets are committed, so this only
- * needs re-running when the art direction changes.
+ * Output lands in assets/raw/. Run build-assets.mjs afterwards to process it
+ * into public/art/. Both are committed, so this only needs re-running when the
+ * art direction changes.
  */
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -17,7 +18,9 @@ if (!KEY) {
 }
 
 const ENDPOINT = 'https://api.venice.ai/api/v1/image/generate'
-const OUT_DIR = join(process.cwd(), 'public', 'art')
+// Raw generator output. scripts/build-assets.mjs post-processes these into
+// public/art/ (background removal), so this directory is never served directly.
+const OUT_DIR = join(process.cwd(), 'assets', 'raw')
 
 // Shared art direction so every asset reads as one set.
 const LOOK =
@@ -27,36 +30,16 @@ const LOOK =
 
 const ASSETS = [
   {
-    name: 'hero-cat',
-    aspect_ratio: '1:1',
-    prompt:
-      'A chubby silver tabby British Shorthair cat slouched back on its bottom ' +
-      'with both hind legs splayed wide apart to the sides in a lazy human-like ' +
-      'sit, front paws hanging forward, and its thick fluffy dark grey ringed ' +
-      'tail rising straight up vertically from between the splayed hind legs, ' +
-      'tail held stiff and proud and perfectly upright like a raised flagpole, ' +
-      'pointing at the sky, round flat face, big amber-gold eyes staring deadpan ' +
-      'straight into the camera with a smug unimpressed expression, cream and ' +
-      'grey fur. ' + LOOK,
-  },
-  {
-    name: 'hero-cat-alt',
-    aspect_ratio: '1:1',
-    prompt:
-      'A fat grumpy grey and cream British Shorthair cat sitting slumped on its ' +
-      'rump facing the camera, hind legs flopped open wide to either side, belly ' +
-      'exposed, one thick bushy grey tail standing bolt upright dead center ' +
-      'between its spread hind legs, rigid and vertical and unmissable, ' +
-      'deadpan smug stare, flat squished face, comedic meme photo. ' + LOOK,
-  },
-  {
     name: 'tail-strap',
     aspect_ratio: '1:1',
     prompt:
-      'A single fluffy dark grey and silver faux fur cat tail phone charm strap ' +
-      'hanging from a black nylon loop cord with a polished silver metal clasp ' +
-      'and a small black rectangular metal tag, tail curving in a soft banana ' +
-      'shape, thick plush realistic fur texture. ' + LOOK,
+      'A single thick plush dark grey and silver faux fur cat tail phone charm ' +
+      'hanging vertically from a thin black nylon cord loop at the top, the fur ' +
+      'tail capped by a polished chrome cylindrical ferrule where the cord ' +
+      'meets it, a small blank black rectangular metal tag hanging beside it on ' +
+      'a split ring, the tail thick and heavy and tapering into a smooth gentle ' +
+      'banana curve that sweeps down and to the right, dense realistic plush ' +
+      'fur texture with visible individual hairs. ' + LOOK,
   },
   {
     name: 'hoodie',

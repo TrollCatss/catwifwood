@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import Nav from './components/Nav'
+import StrapAd from './components/StrapAd'
 
 const TICKER = [
   'CAT WIF WOOD',
@@ -117,54 +118,17 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Product spotlight */}
-      <section className="px-5 py-20">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 md:grid-cols-2">
-          <div className="order-2 flex justify-center md:order-1">
-            <Image
-              src="/art/tail-strap.png"
-              alt="Fur cat tail phone strap"
-              width={1024}
-              height={1024}
-              className="anim-wag w-full max-w-sm"
-            />
-          </div>
-          <div className="order-1 md:order-2">
-            <p className="text-xs font-black uppercase tracking-widest text-green-600">
-              Flagship product
-            </p>
-            <h2 className="mt-2 text-5xl font-black tracking-tight">
-              The Cat Tail Strap
-            </h2>
-            <p className="mt-4 text-lg text-neutral-600">
-              The tail that wags the market. Hangs off your phone. Starts
-              conversations you will regret.
-            </p>
-            <ul className="mt-6 space-y-2.5 font-semibold">
-              <li className="flex gap-3">
-                <span className="text-green-600">—</span> 100% real cat tail*
-              </li>
-              <li className="flex gap-3">
-                <span className="text-green-600">—</span> Boosts your bag
-              </li>
-              <li className="flex gap-3">
-                <span className="text-green-600">—</span> Diamond hands only
-              </li>
-            </ul>
-            <div className="mt-7 flex items-center gap-4">
-              <span className="rounded-xl bg-green-600 px-5 py-2.5 text-2xl font-black text-white">
-                $9.99
-              </span>
-              <Link href="/merch" className="font-bold underline">
-                See all merch
-              </Link>
-            </div>
-            <p className="mt-4 text-xs text-neutral-400">
-              *Not a real cat tail. No cat was consulted, harmed, or compensated.
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* Flagship product, laid out as the campaign ad. */}
+      <StrapAd />
+
+      <div className="px-5 pb-4 text-center">
+        <Link
+          href="/merch"
+          className="inline-block rounded-xl border-2 border-black px-7 py-3.5 font-bold transition hover:bg-black hover:text-white"
+        >
+          See all merch
+        </Link>
+      </div>
 
       {/* FAQ */}
       <section id="faq" className="bg-neutral-50 px-5 py-20">

@@ -130,7 +130,44 @@ await sharp(join(process.cwd(), 'assets', 'tail-cursor.svg'))
   .toFile(join(ART, 'tail-large.png'))
 console.log('✓ public/art/tail-large.png')
 
-// 3. Favicon: square crop around the cat, padded so it reads at 16px.
+// 3. Product shots come off the generator on a near-white studio sweep that
+//    reads as a visible grey square against the page. Same edge flood fill,
+//    with a lower cutoff since that sweep is dimmer than the logo's backdrop.
+//    cutout:false for products that are themselves white. A white tee on a
+//    white sweep has no boundary for the fill to stop at, so keying it erases
+//    the garment and leaves only its shadows. Those ship as-is; being white on
+//    white, the untouched backdrop is invisible against the page anyway.
+const PRODUCTS = [
+  { name: 'tail-strap', cutout: true },
+  { name: 'hoodie', cutout: true },
+  { name: 'tshirt', cutout: false },
+  { name: 'beanie', cutout: true },
+  { name: 'keychain', cutout: true },
+  { name: 'gloves', cutout: true },
+]
+
+//    Raw generator output is kept in assets/raw/ and never written to, so this
+//    stays repeatable and a bad key doesn't cost a regeneration.
+const RAW = join(process.cwd(), 'assets', 'raw')
+
+for (const { name, cutout } of PRODUCTS) {
+  const src = join(RAW, `${name}.png`)
+  const dest = join(ART, `${name}.png`)
+  try {
+    if (cutout) {
+      const cut = await transparentize(src, { threshold: 228 })
+      await cut.trim({ threshold: 1 }).toFile(dest)
+      console.log(`✓ public/art/${name}.png (background removed)`)
+    } else {
+      await sharp(src).toFile(dest)
+      console.log(`✓ public/art/${name}.png (kept as shot)`)
+    }
+  } catch (err) {
+    console.error(`✗ ${name}: ${err.message}`)
+  }
+}
+
+// 4. Favicon: square crop around the cat, padded so it reads at 16px.
 await (await transparentize(SRC))
   .trim({ threshold: 1 })
   .resize(448, 448, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
