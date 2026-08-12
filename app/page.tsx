@@ -9,6 +9,8 @@ const TICKER = [
   'THE TAIL THAT WAGS THE MARKET',
   '100% REAL CAT TAIL',
   'DIAMOND HANDS ONLY',
+  'AUDITED BY A CAT',
+  'HE SAT ON THE WHITEPAPER',
   'NOT FINANCIAL ADVICE',
 ]
 
@@ -22,19 +24,35 @@ const STATS = [
 const FAQ = [
   {
     q: 'Why is the tail like that?',
-    a: 'A raised tail is a scientifically documented sign of a happy, confident cat. Any other interpretation is a you problem.',
+    a: "A raised tail is a documented sign of a happy, confident cat. The veterinary literature is unanimous. Whatever you are currently thinking is a you problem, and we would ask that you keep it largely to yourself.",
+  },
+  {
+    q: 'Who is the team?',
+    a: "One cat. He does not attend meetings. He has never attended a meeting. Every attempt to schedule one has been met with precisely the behaviour you would expect.",
+  },
+  {
+    q: 'Has the contract been audited?',
+    a: "Yes. He looked directly at it for roughly four seconds, then walked away and lay down in a patch of sun. We have elected to interpret this as approval.",
+  },
+  {
+    q: 'Is there a whitepaper?',
+    a: "There was. He sat on it. It is now a bed, and it is his, and we are not in a position to ask for it back.",
   },
   {
     q: 'Is this a serious investment?',
-    a: 'It is a cat with its tail up on a blockchain. Please calibrate accordingly.',
+    a: "It is a photograph of a cat on a blockchain. We have at no point misrepresented this. At no point has anyone here said the word fundamentals.",
   },
   {
     q: 'What is the utility?',
-    a: 'Merch that actually ships, and the quiet dignity of holding a coin your family will never ask you about twice.',
+    a: "Merch that genuinely ships, and the quiet dignity of holding a coin your family will only ask you about once.",
+  },
+  {
+    q: 'What if I lose money?',
+    a: "Then you will own a cat tail keychain, which is materially more than you owned before. We consider this a floor.",
   },
   {
     q: 'Will the tail ever go down?',
-    a: 'Charts go up, charts go down. The tail abides.',
+    a: 'Charts go up. Charts go down. The tail abides.',
   },
 ]
 
@@ -64,8 +82,8 @@ export default function Home() {
             </h1>
 
             <p className="mt-5 max-w-md text-lg leading-relaxed text-neutral-600">
-              He sat down. He looked at the chart. Something happened. Now
-              there&apos;s a token.
+              He sat down. He looked at the chart. Something happened. There is
+              now a token, and it is far too late for any of us.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -134,9 +152,9 @@ export default function Home() {
       <section id="faq" className="bg-neutral-50 px-5 py-20">
         <div className="mx-auto max-w-3xl">
           <h2 className="mb-10 text-5xl font-black tracking-tight">
-            Questions you
+            Questions we
             <br />
-            shouldn&apos;t ask
+            were asked
           </h2>
           <div className="space-y-3">
             {FAQ.map((item) => (
@@ -160,8 +178,8 @@ export default function Home() {
         <p className="font-bold text-black">CATWIFWOOD — $WOOD</p>
         <p className="mt-2">Robinhood Chain 4663</p>
         <p className="mt-4 text-xs">
-          Not financial advice. This is a picture of a cat. Please consult your
-          own cat before investing.
+          Not financial advice. This is a picture of a cat. Consult your own cat
+          before investing, and respect his decision.
         </p>
       </footer>
     </div>
