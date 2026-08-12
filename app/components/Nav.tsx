@@ -3,42 +3,43 @@ import Link from 'next/link'
 
 export default function Nav({ active }: { active?: 'home' | 'merch' }) {
   return (
-    <nav className="fixed top-0 z-50 w-full border-b border-black/10 bg-white/85 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3">
-        <Link href="/" className="flex items-center gap-2.5">
-          <span className="relative h-9 w-9 overflow-hidden rounded-full ring-2 ring-green-600">
+    <nav className="fixed top-0 z-50 w-full border-b border-line bg-paper/85 backdrop-blur-md">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <Link href="/" className="flex items-center gap-3">
+          <span className="relative h-9 w-9 overflow-hidden rounded-full bg-panel">
             <Image
-              src="/art/logo.png"
-              alt="catwifwood"
+              src="/art/avatar.png"
+              alt=""
               fill
               sizes="36px"
-              className="scale-[2.1] object-cover"
-              style={{ objectPosition: '36% 12%' }}
+              className="object-cover"
             />
           </span>
-          <span className="text-xl font-black tracking-tight">
-            <span className="text-green-600">$WOOD</span>
-          </span>
+          <span className="font-serif text-2xl leading-none">catwifwood</span>
         </Link>
 
-        <div className="flex items-center gap-6 text-sm font-semibold">
+        <div className="flex items-center gap-8">
           <Link
             href="/"
-            className={active === 'home' ? 'text-green-600' : 'hover:text-green-600'}
+            className={`eyebrow transition hover:text-ink ${
+              active === 'home' ? 'text-ink' : ''
+            }`}
           >
             Home
           </Link>
           <Link
             href="/merch"
-            className={active === 'merch' ? 'text-green-600' : 'hover:text-green-600'}
+            className={`eyebrow transition hover:text-ink ${
+              active === 'merch' ? 'text-ink' : ''
+            }`}
           >
-            Merch
+            Shop
           </Link>
           <Link
             href="/merch"
-            className="rounded-full bg-green-600 px-4 py-2 text-white transition hover:bg-green-700"
+            className="rounded-full bg-ink px-6 py-2.5 text-[11px] font-bold uppercase tracking-eyebrow text-paper transition hover:bg-wood"
           >
-            Buy
+            $WOOD
           </Link>
         </div>
       </div>

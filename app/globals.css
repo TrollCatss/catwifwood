@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --wood: #16a34a;
-}
-
 * {
   margin: 0;
   padding: 0;
@@ -17,9 +13,11 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-    Arial, sans-serif;
+  background: #fbfaf8;
+  color: #12110f;
+  font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 a {
@@ -31,11 +29,20 @@ button {
   border: none;
   cursor: pointer;
   font-family: inherit;
+  color: inherit;
+}
+
+/* Small uppercase label used above section headings. */
+.eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: #6b6862;
 }
 
 /* --- Animations ------------------------------------------------------- */
 
-/* Hero cat breathes / bobs in place. */
 @keyframes bob {
   0%,
   100% {
@@ -46,14 +53,13 @@ button {
   }
 }
 
-/* The tail twitches, because that is the entire point of this coin. */
 @keyframes wag {
   0%,
   100% {
-    transform: rotate(-4deg);
+    transform: rotate(-3.5deg);
   }
   50% {
-    transform: rotate(4deg);
+    transform: rotate(3.5deg);
   }
 }
 
@@ -97,11 +103,11 @@ button {
 
 .anim-wag {
   transform-origin: top center;
-  animation: wag 2.2s ease-in-out infinite;
+  animation: wag 2.4s ease-in-out infinite;
 }
 
 .anim-marquee {
-  animation: marquee 26s linear infinite;
+  animation: marquee 30s linear infinite;
 }
 
 .anim-rise {
@@ -131,6 +137,6 @@ button {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--wood);
+  background: #16803c;
   border-radius: 5px;
 }

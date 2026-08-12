@@ -19,37 +19,33 @@ const CLAIMS = [
  */
 export default function StrapAd({ id }: { id?: string }) {
   return (
-    <section id={id} className="bg-white px-5 py-16">
-      <div className="mx-auto grid max-w-6xl items-center gap-8 md:grid-cols-2">
+    <section id={id} className="border-y border-line bg-panel/50 px-6 py-20">
+      <div className="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-2">
         <div>
-          <p className="text-[clamp(2.5rem,6vw,3.75rem)] font-black leading-none tracking-tight text-green-600">
-            $WOOD
-          </p>
-          <h2 className="mt-1 text-[clamp(2.75rem,7vw,4.5rem)] font-black uppercase leading-[0.88] tracking-tight">
-            Cat Tail
+          <p className="eyebrow">The flagship</p>
+          <h2 className="mt-4 font-serif text-[clamp(3rem,7vw,5rem)] leading-[0.92] tracking-tight">
+            The Cat Tail
             <br />
             Strap
           </h2>
 
-          <p className="mt-6 flex items-center gap-2 text-xl text-neutral-500 sm:text-2xl">
+          <p className="mt-6 flex items-center gap-2 text-xl text-muted">
             The tail that wags the market.
-            <TrendIcon className="h-6 w-6 shrink-0 text-green-600" />
+            <TrendIcon className="h-5 w-5 shrink-0 text-wood" />
           </p>
 
-          <p className="mt-7 inline-block rounded-2xl bg-green-600 px-8 py-3 text-4xl font-black text-white sm:text-5xl">
-            $9.99
-          </p>
+          <p className="mt-8 font-serif text-5xl text-wood">$9.99</p>
 
-          <ul className="mt-9 space-y-4">
+          <ul className="mt-9 space-y-3 border-t border-line pt-7">
             {CLAIMS.map(({ Icon, text }) => (
               <li key={text} className="flex items-center gap-4">
-                <Icon className="h-6 w-6 shrink-0 text-green-600" />
-                <span className="text-lg font-bold tracking-wide">{text}</span>
+                <Icon className="h-5 w-5 shrink-0 text-wood" />
+                <span className="text-xs font-bold uppercase tracking-eyebrow">{text}</span>
               </li>
             ))}
           </ul>
 
-          <DyorSeal className="mt-10 h-28 w-28 text-green-800" />
+          <DyorSeal className="mt-10 h-24 w-24 text-wood-deep/70" />
         </div>
 
         <div className="relative">
@@ -63,7 +59,7 @@ export default function StrapAd({ id }: { id?: string }) {
         </div>
       </div>
 
-      <p className="mx-auto mt-6 max-w-6xl text-xs text-neutral-400">
+      <p className="mx-auto mt-8 max-w-6xl text-[11px] text-muted/60">
         Not a real cat tail. No cat was consulted, harmed, or compensated.
       </p>
     </section>

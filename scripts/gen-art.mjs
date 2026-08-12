@@ -42,20 +42,59 @@ const ASSETS = [
       'fur texture with visible individual hairs. ' + LOOK,
   },
   {
-    name: 'hoodie',
+    name: 'wood-block',
     aspect_ratio: '1:1',
     prompt:
-      'A folded black premium heavyweight pullover hoodie laid flat, thick ' +
-      'drawstrings, ribbed cuffs, a small blank green embroidered patch on the ' +
-      'chest, streetwear quality cotton fleece texture. ' + LOOK,
+      'A single solid rectangular block of polished dark walnut hardwood ' +
+      'standing upright on end like a monolith, rich deep chocolate brown grain ' +
+      'with visible growth rings, satin oiled finish catching a soft highlight ' +
+      'along one edge, chamfered corners, heavy and dense and expensive looking, ' +
+      'a small blank recessed brass plate inset near the base. ' + LOOK,
   },
   {
-    name: 'tshirt',
+    name: 'pendant',
     aspect_ratio: '1:1',
     prompt:
-      'A plain white heavyweight cotton t-shirt laid flat and neatly folded, ' +
-      'crew neck, structured boxy streetwear cut, visible soft cotton weave ' +
-      'texture, no print, no graphic. ' + LOOK,
+      'A luxury pendant necklace: a small solid polished brushed silver cat tail ' +
+      'sculpted in metal, curving upward in an elegant tapered arc, hanging from ' +
+      'a fine delicate silver box chain, high end fine jewellery product shot, ' +
+      'soft reflective metal highlights, no text. ' + LOOK,
+  },
+  {
+    name: 'whitepaper',
+    aspect_ratio: '1:1',
+    prompt:
+      'A premium cream linen hardcover notebook lying flat and closed, thick ' +
+      'textured paper edges, a rounded shallow circular depression pressed into ' +
+      'the middle of the front cover as though a heavy cat had slept on it, a few ' +
+      'fine grey cat hairs resting on the cover, elegant minimal stationery, ' +
+      'no text, no logo. ' + LOOK,
+  },
+  {
+    name: 'plaque',
+    aspect_ratio: '1:1',
+    prompt:
+      'An executive desk nameplate: a long polished dark walnut wooden base with ' +
+      'a blank brushed gold brass plate mounted on its angled face, the kind of ' +
+      'plaque on a chief executive desk, rich wood grain, luxurious, ' +
+      'no text engraved. ' + LOOK,
+  },
+  {
+    name: 'deskmat',
+    aspect_ratio: '1:1',
+    prompt:
+      'A large premium charcoal grey felt desk mat laid flat and slightly ' +
+      'rolled at one corner, neat stitched edging around the border, soft ' +
+      'wool-like surface texture, minimal high end desk accessory, plain ' +
+      'unprinted surface. ' + LOOK,
+  },
+  {
+    name: 'coasters',
+    aspect_ratio: '1:1',
+    prompt:
+      'A neat stack of four round dark walnut wooden coasters with one coaster ' +
+      'resting beside the stack, rich hardwood grain, chamfered edges, satin ' +
+      'finish, premium barware, plain unengraved surfaces. ' + LOOK,
   },
   {
     name: 'beanie',
@@ -64,14 +103,6 @@ const ASSETS = [
       'A dark charcoal grey ribbed knit beanie hat with two soft pointed cat ' +
       'ears knitted into the top, chunky wool cable knit texture, cuffed brim, ' +
       'sitting upright. ' + LOOK,
-  },
-  {
-    name: 'keychain',
-    aspect_ratio: '1:1',
-    prompt:
-      'A tiny miniature fluffy grey faux fur cat tail keychain charm attached to ' +
-      'a polished silver split key ring with a small lobster clasp, short stubby ' +
-      'plush tail, soft fur detail. ' + LOOK,
   },
   {
     name: 'gloves',
