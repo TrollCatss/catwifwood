@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import Nav from './components/Nav'
 import StrapAd from './components/StrapAd'
+import TailWears from './components/TailWears'
 
 const TICKER = [
   'CAT WIF WOOD',
@@ -92,10 +93,10 @@ export default function Home() {
                 Shop the collection
               </Link>
               <a
-                href="#faq"
+                href="#wardrobe"
                 className="rounded-full border border-ink px-8 py-3.5 text-[11px] font-bold uppercase tracking-eyebrow transition hover:bg-ink hover:text-paper"
               >
-                Explain yourself
+                See the wardrobe
               </a>
             </div>
 
@@ -143,6 +144,8 @@ export default function Home() {
           View the full collection
         </Link>
       </div>
+
+      <TailWears />
 
       {/* FAQ */}
       <section id="faq" className="border-t border-line bg-panel/40 px-6 py-24">
