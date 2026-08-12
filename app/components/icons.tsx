@@ -114,3 +114,11 @@ export function DyorSeal({ className }: IconProps) {
     </svg>
   )
 }
+
+export function TelegramIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden>
+      <path d="M21.7 3.3a1.2 1.2 0 0 0-1.24-.2L2.9 9.86a1.2 1.2 0 0 0 .1 2.27l4.25 1.32 1.62 5.1a1.05 1.05 0 0 0 1.78.4l2.3-2.42 4.28 3.15a1.2 1.2 0 0 0 1.88-.71l3.02-14.4a1.2 1.2 0 0 0-.43-1.27ZM9.6 13.9l-.63 3.13-1.1-3.46 8.6-5.6-6.87 5.93Z" />
+    </svg>
+  )
+}

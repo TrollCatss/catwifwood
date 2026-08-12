@@ -1,5 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { SITE } from '../site'
+import { TelegramIcon } from './icons'
 
 export default function Nav({ active }: { active?: 'home' | 'merch' }) {
   return (
@@ -15,7 +17,7 @@ export default function Nav({ active }: { active?: 'home' | 'merch' }) {
               className="object-cover"
             />
           </span>
-          <span className="font-serif text-2xl leading-none">catwifwood</span>
+          <span className="font-serif text-2xl leading-none">{SITE.name}</span>
         </Link>
 
         <div className="flex items-center gap-8">
@@ -35,11 +37,20 @@ export default function Nav({ active }: { active?: 'home' | 'merch' }) {
           >
             Shop
           </Link>
+          <a
+            href={SITE.links.telegram}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="catwifwood on Telegram"
+            className="text-muted transition hover:text-wood"
+          >
+            <TelegramIcon className="h-5 w-5" />
+          </a>
           <Link
             href="/merch"
             className="rounded-full bg-ink px-6 py-2.5 text-[11px] font-bold uppercase tracking-eyebrow text-paper transition hover:bg-wood"
           >
-            $WOOD
+            {SITE.ticker}
           </Link>
         </div>
       </div>

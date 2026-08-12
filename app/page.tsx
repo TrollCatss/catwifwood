@@ -1,6 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import Nav from './components/Nav'
+import { SITE } from './site'
+import { TelegramIcon } from './components/icons'
 import StrapAd from './components/StrapAd'
 import TailWears from './components/TailWears'
 
@@ -174,9 +176,41 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Community */}
+      <section className="border-t border-line px-6 py-24 text-center">
+        <p className="eyebrow">The group chat</p>
+        <h2 className="mx-auto mt-4 max-w-2xl font-serif text-[clamp(2.25rem,5vw,3.5rem)] leading-[0.98] tracking-tight">
+          Everyone is already
+          <br />
+          <em className="italic text-wood">in there</em>
+        </h2>
+        <p className="mx-auto mt-6 max-w-md leading-relaxed text-muted">
+          Posting the tail in hats. Arguing about the chart. It is going about as
+          well as you would imagine.
+        </p>
+        <a
+          href={SITE.links.telegram}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-9 inline-flex items-center gap-2.5 rounded-full bg-ink px-9 py-4 text-[11px] font-bold uppercase tracking-eyebrow text-paper transition hover:bg-wood"
+        >
+          <TelegramIcon className="h-4 w-4" />
+          Join on Telegram
+        </a>
+      </section>
+
       <footer className="border-t border-line px-6 py-16 text-center">
-        <p className="font-serif text-3xl">catwifwood</p>
-        <p className="eyebrow mt-3">Robinhood Chain 4663</p>
+        <p className="font-serif text-3xl">{SITE.name}</p>
+        <p className="eyebrow mt-3">{SITE.chain}</p>
+        <a
+          href={SITE.links.telegram}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 inline-flex items-center gap-2 text-sm text-muted transition hover:text-wood"
+        >
+          <TelegramIcon className="h-4 w-4" />
+          t.me/catwifwood
+        </a>
         <p className="mx-auto mt-6 max-w-md text-[11px] leading-relaxed text-muted/70">
           Not financial advice. This is a picture of a cat. Consult your own cat
           before investing, and respect his decision.
