@@ -5,9 +5,9 @@
  *   node scripts/build-assets.mjs [path-to-logo]
  *
  * Produces:
- *   public/art/logo.png        full logo, white knocked out
- *   public/art/tail-cursor.png the tail alone, used as the mouse cursor
- *   app/icon.png               favicon (Next serves app/icon.png automatically)
+ *   public/art/logo.png   full logo, background knocked out
+ *   public/art/<product>  product shots, background knocked out
+ *   app/icon.png          favicon (Next serves app/icon.png automatically)
  */
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -95,28 +95,8 @@ console.log(`source ${W}x${H}`)
 await (await transparentize(SRC)).trim({ threshold: 1 }).toFile(join(ART, 'logo.png'))
 console.log('✓ public/art/logo.png')
 
-// 2. The tail, isolated. The tail is dark grey and everything it overlaps
-//    (body, hind legs, backdrop) is cream-to-white, so keying on luminance
-//    separates it far more cleanly than a rectangular crop can.
-async function keepDark(input, cutoff) {
-  const img = sharp(input).ensureAlpha()
-  const { width, height } = await img.metadata()
-  const raw = await img.raw().toBuffer()
 
-  for (let i = 0; i < raw.length; i += 4) {
-    const lum = 0.299 * raw[i] + 0.587 * raw[i + 1] + 0.114 * raw[i + 2]
-    if (lum > cutoff) raw[i + 3] = 0
-    else if (lum > cutoff - 22) raw[i + 3] = 140
-  }
-
-  return sharp(raw, { raw: { width, height, channels: 4 } }).png()
-}
-
-// keepDark stays available for pulling the tail out of the logo at poster
-// sizes, where the fur detail survives.
-void keepDark
-
-// 3. Product shots come off the generator on a near-white studio sweep that
+// 2. Product shots come off the generator on a near-white studio sweep that
 //    reads as a visible grey square against the page. Same edge flood fill,
 //    with a lower cutoff since that sweep is dimmer than the logo's backdrop.
 //    cutout:false for products that are themselves white. A white tee on a
@@ -132,8 +112,8 @@ const PRODUCTS = [
   { name: 'gloves', cutout: true },
 ]
 
-//    Raw generator output is kept in assets/raw/ and never written to, so this
-//    stays repeatable and a bad key doesn't cost a regeneration.
+// Raw generator output is kept in assets/raw/ and never written to, so this
+// stays repeatable and a bad key doesn't cost a regeneration.
 const RAW = join(process.cwd(), 'assets', 'raw')
 
 for (const { name, cutout } of PRODUCTS) {
@@ -153,38 +133,7 @@ for (const { name, cutout } of PRODUCTS) {
   }
 }
 
-// 4. Mouse cursor: the fur off the strap, which is already cut out by the step
-//    above. A drawn tail read as a microphone at this size — a straight
-//    tapered cylinder is exactly that silhouette — so this uses the real fur.
-//    The cord, chrome ferrule and tag are cropped off, and the whole thing is
-//    turned so the narrow tip leads, giving the pointer something to aim with.
-{
-  const strap = join(ART, 'tail-strap.png')
-  const { width, height } = await sharp(strap).metadata()
-
-  // The cord, ferrule and tag all sit above the fur, and the tail sweeps out
-  // to the right, so this crops by height only — narrowing it would clip the
-  // tip off the curve.
-  const top = Math.round(height * 0.5)
-  const fur = await sharp(strap)
-    .extract({ left: 0, top, width, height: height - top })
-    .trim({ threshold: 1 })
-    .toBuffer()
-
-  await sharp(fur)
-    .resize({ height: 46, fit: 'inside' })
-    .png()
-    .toFile(join(ART, 'tail-cursor.png'))
-  console.log('✓ public/art/tail-cursor.png')
-
-  await sharp(fur)
-    .resize({ height: 96, fit: 'inside' })
-    .png()
-    .toFile(join(ART, 'tail-large.png'))
-  console.log('✓ public/art/tail-large.png')
-}
-
-// 5. Favicon: square crop around the cat, padded so it reads at 16px.
+// 3. Favicon: square crop around the cat, padded so it reads at 16px.
 await (await transparentize(SRC))
   .trim({ threshold: 1 })
   .resize(448, 448, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })

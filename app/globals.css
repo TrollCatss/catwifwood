@@ -20,29 +20,6 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-
-  /* The pointer is a cat tail, cut from the strap photo. The hotspot sits at
-     the thick base in the top-left, which is where the shape reads as leading. */
-  cursor: url('/art/tail-cursor.png') 5 4, auto;
-}
-
-a,
-button,
-summary,
-[role='button'] {
-  cursor: url('/art/tail-cursor.png') 5 4, pointer;
-}
-
-/* Coarse pointers have no cursor to restyle, and touch users would just pay
-   the download for nothing. */
-@media (pointer: coarse) {
-  body,
-  a,
-  button,
-  summary,
-  [role='button'] {
-    cursor: auto;
-  }
 }
 
 a {
