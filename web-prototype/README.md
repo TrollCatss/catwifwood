@@ -27,6 +27,17 @@ npm run build   # tsc + production bundle in dist/
 - Combo: consecutive clearing placements raise the harvest multiplier (up to x2). The streak survives two quiet placements.
 - The tray generator prefers a set of three pieces that can all be placed, so rounds end from play, not bad luck.
 
+## Units and merging
+
+- About one tray piece in six is made of unit blocks: archer, knight or catapult (tier 1).
+- Two touching units of the same kind and tier merge into the next tier; the other block disappears (frees a cell). Order: line clears resolve first, then merges.
+  Archer -> Longbowman -> Fire Archer; Footman -> Knight -> Champion; Catapult -> Trebuchet -> Fire Trebuchet.
+- Clearing a line that contains a unit banks it into the army (`localStorage` key `dragonspire.army`), so merging up before clearing is worth more.
+
+## Look
+
+All art is drawn in code for now (stone board in a riveted wood frame, wood/iron/coal blocks, heraldic unit shields with tier rims, castle-at-dusk backdrop with a dragon flying past). Final art can replace it later.
+
 ## Next
 
 Build screen (spend resources), then AI battle. Wrap with Capacitor for Android once the loop is fun. Decide the final name and run the trademark check first.

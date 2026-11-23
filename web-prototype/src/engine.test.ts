@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Game, SHAPES, SIZE, applyClears, canPlace, emptyGrid, findClears, generateTray, mulberry32, previewClears, trayIsSolvable, type Piece } from './engine';
+import { applyMerges, unitKind, unitName, Game, SHAPES, SIZE, applyClears, canPlace, emptyGrid, findClears, generateTray, mulberry32, previewClears, trayIsSolvable, type Piece } from './engine';
 
 const shape = (id: string) => SHAPES.find((s) => s.id === id || s.id === id + ':0')!;
 const piece = (id: string, kind: Piece['kind'] = 'wood'): Piece => ({ shape: shape(id), kind });
@@ -112,5 +112,54 @@ describe('generateTray', () => {
       expect(tray).toHaveLength(3);
       expect(tray.every((p) => p.shape.cells.length > 0)).toBe(true);
     }
+  });
+});
+
+describe('unit merging', () => {
+  it('merges two touching same-tier units into the next tier and frees the other cell', () => {
+    const g = emptyGrid();
+    g[3][3] = unitKind('archer', 1);
+    g[3][4] = unitKind('archer', 1);
+    const m = applyMerges(g, [[3, 4]]);
+    expect(m).toHaveLength(1);
+    expect(g[3][4]).toBe('archer:2');
+    expect(g[3][3]).toBeNull();
+    expect(unitName('archer:3')).toBe('Fire Archer');
+  });
+
+  it('chains: tier 2 next to a new merge result keeps merging up to the cap', () => {
+    const g = emptyGrid();
+    g[1][0] = 'knight:2';
+    g[0][1] = 'knight:1';
+    g[1][1] = 'knight:1';
+    applyMerges(g, [[1, 1]]);
+    expect(g.flat().filter(Boolean)).toEqual(['knight:3']);
+    g[5][5] = 'knight:3'; g[5][6] = 'knight:3';
+    expect(applyMerges(g)).toHaveLength(0); // tier 3 is the cap
+  });
+
+  it('does not merge different types or different tiers', () => {
+    const g = emptyGrid();
+    g[1][1] = 'archer:1'; g[1][2] = 'knight:1'; g[2][1] = 'archer:2';
+    expect(applyMerges(g)).toHaveLength(0);
+  });
+
+  it('banks units that are cleared off the board instead of losing them', () => {
+    const game = new Game(9);
+    for (let c = 0; c < SIZE - 1; c++) game.grid[0][c] = c === 2 ? 'catapult:2' : 'wood';
+    game.tray = [piece('dot', 'iron'), null, null];
+    const res = game.place(0, 0, SIZE - 1)!;
+    expect(res.banked).toEqual(['catapult:2']);
+    expect(game.army['catapult:2']).toBe(1);
+    expect(game.harvest.wood).toBe(SIZE - 2); // the unit is not counted as a resource
+  });
+
+  it('places merges after clears and scores them', () => {
+    const game = new Game(10);
+    game.grid[6][1] = 'archer:1';
+    game.tray = [piece('dot', 'archer:1'), null, null];
+    const res = game.place(0, 6, 2)!;
+    expect(res.merges).toHaveLength(1);
+    expect(res.scoreGain).toBe(1 + 40);
   });
 });

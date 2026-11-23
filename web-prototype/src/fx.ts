@@ -61,7 +61,7 @@ export class Fx {
       const k = f.life / f.max;
       ctx.globalAlpha = k < 0.7 ? 1 : 1 - (k - 0.7) / 0.3;
       const s = f.size * (k < 0.15 ? 0.6 + (k / 0.15) * 0.6 : 1.2 - Math.min(0.2, (k - 0.15) * 0.4));
-      ctx.font = `800 ${s}px system-ui, sans-serif`;
+      ctx.font = `700 ${s}px Georgia, "Times New Roman", serif`;
       ctx.lineWidth = 5;
       ctx.strokeStyle = 'rgba(20,8,30,.85)';
       ctx.strokeText(f.text, f.x, f.y);

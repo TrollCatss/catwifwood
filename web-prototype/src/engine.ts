@@ -3,7 +3,32 @@
 export const SIZE = 8;
 export const RESOURCES = ['fire', 'wood', 'iron'] as const;
 export type Resource = (typeof RESOURCES)[number];
-export type Cell = Resource | null;
+
+// Units: three families, three tiers. Two touching units of the same kind and tier merge into the next tier.
+export const UNITS = ['archer', 'knight', 'catapult'] as const;
+export type UnitType = (typeof UNITS)[number];
+export type Tier = 1 | 2 | 3;
+export type UnitKind = `${UnitType}:${Tier}`;
+export type Kind = Resource | UnitKind;
+export const MAX_TIER = 3;
+export const UNIT_NAMES: Record<UnitType, [string, string, string]> = {
+  archer: ['Archer', 'Longbowman', 'Fire Archer'],
+  knight: ['Footman', 'Knight', 'Champion'],
+  catapult: ['Catapult', 'Trebuchet', 'Fire Trebuchet'],
+};
+export const unitKind = (type: UnitType, tier: Tier): UnitKind => `${type}:${tier}`;
+export function parseUnit(k: Kind): { type: UnitType; tier: Tier } | null {
+  if (!k.includes(':')) return null;
+  const [type, tier] = k.split(':');
+  return { type: type as UnitType, tier: Number(tier) as Tier };
+}
+export const isUnit = (k: Kind): k is UnitKind => k.includes(':');
+export function unitName(k: UnitKind): string {
+  const u = parseUnit(k)!;
+  return UNIT_NAMES[u.type][u.tier - 1];
+}
+
+export type Cell = Kind | null;
 export type Grid = Cell[][];
 export type Pt = readonly [number, number]; // [row, col]
 export type Harvest = Record<Resource, number>;
@@ -17,7 +42,7 @@ export interface Shape {
 }
 export interface Piece {
   shape: Shape;
-  kind: Resource;
+  kind: Kind;
 }
 
 export type Rng = () => number;
@@ -129,7 +154,7 @@ export function previewClears(g: Grid, p: Piece, r: number, c: number): Clears {
 export interface ClearedCell {
   r: number;
   c: number;
-  kind: Resource;
+  kind: Kind;
 }
 /** Removes full lines in place; returns the cells that were removed (each counted once). */
 export function applyClears(g: Grid, cl: Clears): ClearedCell[] {
@@ -140,7 +165,7 @@ export function applyClears(g: Grid, cl: Clears): ClearedCell[] {
   for (const k of hit) {
     const r = Math.floor(k / SIZE);
     const c = k % SIZE;
-    out.push({ r, c, kind: g[r][c] as Resource });
+    out.push({ r, c, kind: g[r][c] as Kind });
     g[r][c] = null;
   }
   return out;
@@ -159,7 +184,16 @@ function pick<T>(items: T[], weight: (t: T) => number, rng: Rng): T {
   return items[items.length - 1];
 }
 
+const UNIT_PIECE_CHANCE = 0.16;
+const UNIT_SHAPE_IDS = new Set(['dot:0', 'i2:0', 'i2:1', 'i3:0', 'i3:1', 'l2:0', 'l2:1', 'l2:2', 'l2:3']);
+const UNIT_SHAPES = SHAPES.filter((s) => UNIT_SHAPE_IDS.has(s.id));
+
 export function randomPiece(rng: Rng): Piece {
+  if (rng() < UNIT_PIECE_CHANCE) {
+    const shape = UNIT_SHAPES[Math.floor(rng() * UNIT_SHAPES.length)];
+    const type = UNITS[Math.floor(rng() * UNITS.length)];
+    return { shape, kind: unitKind(type, 1) };
+  }
   const shape = pick(SHAPES, (s) => s.weight, rng);
   const kind = pick([...RESOURCES], (k) => KIND_WEIGHTS[k], rng);
   return { shape, kind };
@@ -195,10 +229,51 @@ export function generateTray(g: Grid, rng: Rng): Piece[] {
   return fallback ?? [randomPiece(rng), randomPiece(rng), randomPiece(rng)];
 }
 
+// ---------- merging ----------
+export interface Merge {
+  at: Pt; // survivor, now one tier higher
+  from: Pt; // absorbed block, now empty
+  to: UnitKind;
+}
+const NEIGH: Pt[] = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+
+/** Merges touching same-kind units until stable. Mutates the grid. Prefers `prefer` cells as the survivor. */
+export function applyMerges(g: Grid, prefer: Pt[] = []): Merge[] {
+  const out: Merge[] = [];
+  const pref = new Set(prefer.map(([r, c]) => r * SIZE + c));
+  for (let guard = 0; guard < 64; guard++) {
+    let found: { a: Pt; b: Pt } | null = null;
+    for (let r = 0; r < SIZE && !found; r++) {
+      for (let c = 0; c < SIZE && !found; c++) {
+        const k = g[r][c];
+        const u = k && parseUnit(k);
+        if (!u || u.tier >= MAX_TIER) continue;
+        for (const [dr, dc] of NEIGH) {
+          const rr = r + dr, cc = c + dc;
+          if (rr < 0 || cc < 0 || rr >= SIZE || cc >= SIZE || g[rr][cc] !== k) continue;
+          const aIsPref = pref.has(r * SIZE + c), bIsPref = pref.has(rr * SIZE + cc);
+          found = bIsPref && !aIsPref ? { a: [rr, cc], b: [r, c] } : { a: [r, c], b: [rr, cc] };
+          break;
+        }
+      }
+    }
+    if (!found) break;
+    const u = parseUnit(g[found.a[0]][found.a[1]] as Kind)!;
+    const to = unitKind(u.type, (u.tier + 1) as Tier);
+    g[found.a[0]][found.a[1]] = to;
+    g[found.b[0]][found.b[1]] = null;
+    pref.add(found.a[0] * SIZE + found.a[1]);
+    out.push({ at: found.a, from: found.b, to });
+  }
+  return out;
+}
+
 // ---------- game state ----------
 export interface PlaceResult {
   placed: Pt[]; // absolute cells just filled
-  kind: Resource;
+  kind: Kind;
+  merges: Merge[];
+  banked: UnitKind[]; // units cleared off the board this move, now in the army
   cleared: ClearedCell[];
   lines: number;
   combo: number;
@@ -216,6 +291,7 @@ export class Game {
   combo = 0;
   sinceClear = 0;
   harvest: Harvest = emptyHarvest();
+  army: Record<string, number> = {};
   over = false;
   moves = 0;
   private rng: Rng;
@@ -240,13 +316,19 @@ export class Game {
 
     let scoreGain = placed.length;
     const gained = emptyHarvest();
+    const banked: UnitKind[] = [];
     let perfect = false;
 
     if (lines > 0) {
       this.combo++;
       this.sinceClear = 0;
       const mult = Math.min(2, 1 + 0.25 * (this.combo - 1));
-      for (const cell of cleared) gained[cell.kind] += 1;
+      for (const cell of cleared) {
+        if (isUnit(cell.kind)) {
+          banked.push(cell.kind);
+          this.army[cell.kind] = (this.army[cell.kind] || 0) + 1;
+        } else gained[cell.kind] += 1;
+      }
       for (const k of RESOURCES) {
         gained[k] = Math.round(gained[k] * mult);
         this.harvest[k] += gained[k];
@@ -257,6 +339,9 @@ export class Game {
     } else if (++this.sinceClear >= 3) {
       this.combo = 0; // streak survives two quiet placements, like the genre expects
     }
+
+    const merges = applyMerges(this.grid, placed);
+    for (const m of merges) scoreGain += 20 * (parseUnit(m.to)!.tier);
     this.score += scoreGain;
 
     let trayRefilled = false;
@@ -266,6 +351,6 @@ export class Game {
     }
     this.over = !this.tray.some((p) => p && anyPlacement(this.grid, p));
 
-    return { placed, kind: piece.kind, cleared, lines, combo: this.combo, gained, scoreGain, perfect, trayRefilled, over: this.over };
+    return { placed, kind: piece.kind, merges, banked, cleared, lines, combo: this.combo, gained, scoreGain, perfect, trayRefilled, over: this.over };
   }
 }

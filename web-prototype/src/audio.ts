@@ -64,6 +64,12 @@ export class Sfx {
     if (hadFire) this.noise(0.45, 0.35, 400, 2400);
   }
 
+  merge(tier: number) {
+    const base = tier === 3 ? 330 : 440;
+    [0, 4, 7, 12].slice(0, tier + 1).forEach((st, i) => this.tone(base * 2 ** (st / 12), 0.22, 'triangle', 0.22, i * 0.06));
+    this.tone(1200 * tier, 0.12, 'square', 0.04, 0.02);
+    if (tier === 3) this.noise(0.5, 0.3, 500, 3000);
+  }
   perfect() { [523, 659, 784, 1047, 1319].forEach((f, i) => this.tone(f, 0.35, 'triangle', 0.25, i * 0.08)); }
   gameOver() { [392, 330, 262, 196].forEach((f, i) => this.tone(f, 0.4, 'sawtooth', 0.14, i * 0.17)); }
 }
