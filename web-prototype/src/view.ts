@@ -12,13 +12,11 @@ const PALETTE: Record<Resource, { hi: string; mid: string; lo: string; glyph: st
   iron: { hi: '#d4e0ec', mid: '#8499ae', lo: '#53667a', glyph: '#f4f9ff' },
 };
 const BEST_KEY = 'dragonspire.best';
-const BANK_KEY = 'dragonspire.bank';
-const ARMY_KEY = 'dragonspire.army';
 const LINE_WORDS = ['', '', 'Double!', 'Triple!', 'Quad!', 'Massive!', 'Legendary!'];
 
 interface Layout { W: number; H: number; cell: number; gx: number; gy: number; gs: number; trayY: number; slotW: number; slotH: number; chipY: number; scoreY: number }
 interface Clearing extends ClearedCell { t: number; delay: number }
-interface Flyer { x: number; y: number; tx: number; ty: number; t: number; dur: number; kind: Resource | 'unit'; amount: number }
+interface Flyer { x: number; y: number; tx: number; ty: number; t: number; dur: number; kind: Resource | 'unit' | 'gold'; amount: number }
 interface Merging { from: Pt; at: Pt; kind: Kind; t: number }
 interface Drag { slot: number; x: number; y: number; k: number }
 
@@ -34,6 +32,7 @@ export class View {
   private pops = new Map<number, number>();
   private shown: Harvest = { fire: 0, wood: 0, iron: 0 };
   private shownArmy = 0;
+  private shownGold = 0;
   private merging: Merging[] = [];
   private backdrop: HTMLCanvasElement | null = null;
   private shownScore = 0;
@@ -64,6 +63,7 @@ export class View {
     this.pops.clear();
     this.shown = { fire: 0, wood: 0, iron: 0 };
     this.shownArmy = 0;
+    this.shownGold = 0;
     this.merging = [];
     this.shownScore = 0;
     this.overTimer = -1;
@@ -104,10 +104,10 @@ export class View {
   private armyPos() {
     return { x: this.L.W / 2, y: this.L.chipY + 36 };
   }
-  private chipPos(kind: Resource) {
+  private chipPos(kind: Resource | 'gold') {
     const { W, chipY } = this.L;
-    const i = RESOURCES.indexOf(kind);
-    return { x: W / 2 + (i - 1) * Math.min(112, W / 3.2), y: chipY };
+    const i = kind === 'gold' ? 0 : RESOURCES.indexOf(kind) + 1;
+    return { x: W / 2 + (i - 1.5) * Math.min(100, (W - 16) / 4), y: chipY };
   }
 
   // ---------- input ----------
@@ -189,6 +189,7 @@ export class View {
         if (extra > 0) [...this.flyers].reverse().find((f) => f.kind === k)!.amount += extra;
       }
       const mid = { x: this.L.W / 2, y: this.L.gy + this.L.gs / 2 };
+      this.goldFlyers(res.goldGain - res.merges.reduce((a, m) => a + 3 * parseUnit(m.to)!.tier, 0), mid.x, mid.y);
       this.fx.float(`+${res.scoreGain}`, mid.x, mid.y - 6, '#fff', 40);
       if (res.lines >= 2) this.fx.float(LINE_WORDS[Math.min(res.lines, 6)], mid.x, mid.y - 52, '#ffc15a', 30);
       if (res.combo >= 2) this.fx.float(`Combo x${res.combo}`, mid.x, mid.y + 40, '#ff8a4a', 28);
@@ -212,10 +213,21 @@ export class View {
     }
   }
 
+  private goldFlyers(amount: number, x: number, y: number) {
+    if (amount <= 0) return;
+    const pos = this.chipPos('gold');
+    const n = Math.min(6, amount);
+    for (let i = 0; i < n; i++) {
+      const share = Math.floor(amount / n) + (i < amount % n ? 1 : 0);
+      this.flyers.push({ x: x + (Math.random() - 0.5) * 40, y: y + (Math.random() - 0.5) * 30, tx: pos.x - 26, ty: pos.y, t: -i * 0.05, dur: 0.65, kind: 'gold', amount: share });
+    }
+  }
+
   private onMerge(m: Merge) {
     const tier = parseUnit(m.to)!.tier;
     const p = this.cellCenter(m.at[0], m.at[1]);
     this.merging.push({ from: m.from, at: m.at, kind: m.to, t: 0 });
+    this.goldFlyers(3 * tier, p.x, p.y);
     this.pops.set(m.at[0] * SIZE + m.at[1], 0.35);
     this.fx.burst(p.x, p.y, tier === 3 ? '#ff9a3a' : '#ffe9a0', 14 + tier * 8, this.L.cell * 6, { gravity: 120, glow: true });
     this.fx.float(unitName(m.to), p.x, p.y - this.L.cell * 0.8, tier === 3 ? '#ff9a3a' : '#ffe9a0', 24 + tier * 3);
@@ -229,12 +241,6 @@ export class View {
     if (isBest) this.best = g.score;
     try {
       localStorage.setItem(BEST_KEY, String(this.best));
-      const bank = JSON.parse(localStorage.getItem(BANK_KEY) || '{"fire":0,"wood":0,"iron":0}') as Harvest;
-      for (const k of RESOURCES) bank[k] = (bank[k] || 0) + g.harvest[k];
-      localStorage.setItem(BANK_KEY, JSON.stringify(bank));
-      const army = JSON.parse(localStorage.getItem(ARMY_KEY) || '{}') as Record<string, number>;
-      for (const [k, n] of Object.entries(g.army)) army[k] = (army[k] || 0) + n;
-      localStorage.setItem(ARMY_KEY, JSON.stringify(army));
     } catch { /* storage may be unavailable */ }
     this.onOver(g, this.best, isBest);
   }
@@ -244,8 +250,10 @@ export class View {
     const dt = Math.min(0.05, (now - this.last) / 1000);
     this.last = now;
     this.time += dt;
-    this.update(dt);
-    this.render();
+    if (this.active) {
+      this.update(dt);
+      this.render();
+    }
     requestAnimationFrame((t) => this.frame(t));
   }
 
@@ -259,7 +267,7 @@ export class View {
     this.merging = this.merging.filter((m) => m.t < 0.25);
     for (const f of this.flyers) f.t += dt;
     this.flyers = this.flyers.filter((f) => {
-      if (f.t >= f.dur) { if (f.kind === 'unit') this.shownArmy += f.amount; else this.shown[f.kind] += f.amount; return false; }
+      if (f.t >= f.dur) { if (f.kind === 'unit') this.shownArmy += f.amount; else if (f.kind === 'gold') this.shownGold += f.amount; else this.shown[f.kind] += f.amount; return false; }
       return true;
     });
     this.shownScore += (this.game.score - this.shownScore) * Math.min(1, dt * 10);
@@ -340,6 +348,15 @@ export class View {
     }
     ctx.globalAlpha = 1;
   }
+
+  /** Lets other screens (battle, build) draw the same unit shields. */
+  drawShield(ctx: CanvasRenderingContext2D, x: number, y: number, s: number, kind: UnitKind, alpha = 1) {
+    const old = this.ctx;
+    this.ctx = ctx;
+    this.unit(x, y, s, kind, alpha);
+    this.ctx = old;
+  }
+  active = true;
 
   /** A heraldic shield: colour = unit family, rim = tier (bronze, silver, gold), icon = what it is. */
   private unit(x: number, y: number, s: number, kind: UnitKind, alpha: number) {
@@ -566,7 +583,7 @@ export class View {
       if (f.t < 0) continue;
       const k = f.t / f.dur, e = k * k * (3 - 2 * k);
       const x = f.x + (f.tx - f.x) * e, y = f.y + (f.ty - f.y) * e - Math.sin(k * Math.PI) * 40;
-      const fc = f.kind === 'unit' ? { hi: '#ffd34d', mid: '#ffb030' } : PALETTE[f.kind];
+      const fc = f.kind === 'unit' || f.kind === 'gold' ? { hi: '#ffd34d', mid: '#ffb030' } : PALETTE[f.kind];
       ctx.fillStyle = fc.hi; ctx.shadowColor = fc.mid; ctx.shadowBlur = 10;
       ctx.beginPath(); ctx.arc(x, y, 5 * (1 - k * 0.4), 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
     }
@@ -604,12 +621,24 @@ export class View {
     ctx.textAlign = 'right'; ctx.fillStyle = '#d9b45f';
     ctx.fillText(this.sfx.muted ? 'SOUND OFF' : 'SOUND ON', W - 16, scoreY - 8);
 
+    const cw = Math.min(92, (W - 24) / 4 - 4);
+    {
+      const p = this.chipPos('gold');
+      plate(p.x - cw / 2, p.y - 17, cw, 34);
+      const cx = p.x - cw / 2 + 15, cy = p.y;
+      const cg = ctx.createRadialGradient(cx - 3, cy - 3, 1, cx, cy, 11);
+      cg.addColorStop(0, '#fff3b0'); cg.addColorStop(1, '#c08a1e');
+      ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(cx, cy, 11, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#8a5a10'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(cx, cy, 7, 0, Math.PI * 2); ctx.stroke();
+      ctx.textAlign = 'left'; ctx.fillStyle = '#ffd34d'; ctx.font = `700 18px ${SERIF}`;
+      ctx.fillText(String(this.shownGold), cx + 15, p.y + 1);
+    }
     for (const k of RESOURCES) {
       const p = this.chipPos(k);
-      plate(p.x - 46, p.y - 18, 92, 36);
-      this.block(p.x - 42, p.y - 14, 28, k);
-      ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.font = `700 20px ${SERIF}`;
-      ctx.fillText(String(this.shown[k]), p.x - 8, p.y + 1);
+      plate(p.x - cw / 2, p.y - 17, cw, 34);
+      this.block(p.x - cw / 2 + 3, p.y - 13, 26, k);
+      ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.font = `700 18px ${SERIF}`;
+      ctx.fillText(String(this.shown[k]), p.x - cw / 2 + 34, p.y + 1);
     }
     const a = this.armyPos();
     plate(a.x - 62, a.y - 13, 124, 26);

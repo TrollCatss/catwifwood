@@ -278,6 +278,7 @@ export interface PlaceResult {
   lines: number;
   combo: number;
   gained: Harvest;
+  goldGain: number;
   scoreGain: number;
   perfect: boolean;
   trayRefilled: boolean;
@@ -292,6 +293,7 @@ export class Game {
   sinceClear = 0;
   harvest: Harvest = emptyHarvest();
   army: Record<string, number> = {};
+  gold = 0;
   over = false;
   moves = 0;
   private rng: Rng;
@@ -315,6 +317,7 @@ export class Game {
     const cleared = applyClears(this.grid, cl);
 
     let scoreGain = placed.length;
+    let goldGain = 0;
     const gained = emptyHarvest();
     const banked: UnitKind[] = [];
     let perfect = false;
@@ -335,13 +338,19 @@ export class Game {
       }
       scoreGain += Math.round(lines * lines * 10 * (1 + 0.5 * (this.combo - 1)));
       perfect = this.grid.every((row) => row.every((x) => x === null));
-      if (perfect) scoreGain += 200;
+      goldGain += Math.round(lines * 5 * (1 + 0.5 * (this.combo - 1)));
+      if (perfect) { scoreGain += 200; goldGain += 25; }
     } else if (++this.sinceClear >= 3) {
       this.combo = 0; // streak survives two quiet placements, like the genre expects
     }
 
     const merges = applyMerges(this.grid, placed);
-    for (const m of merges) scoreGain += 20 * (parseUnit(m.to)!.tier);
+    for (const m of merges) {
+      const tier = parseUnit(m.to)!.tier;
+      scoreGain += 20 * tier;
+      goldGain += 3 * tier;
+    }
+    this.gold += goldGain;
     this.score += scoreGain;
 
     let trayRefilled = false;
@@ -351,6 +360,6 @@ export class Game {
     }
     this.over = !this.tray.some((p) => p && anyPlacement(this.grid, p));
 
-    return { placed, kind: piece.kind, merges, banked, cleared, lines, combo: this.combo, gained, scoreGain, perfect, trayRefilled, over: this.over };
+    return { placed, kind: piece.kind, merges, banked, cleared, lines, combo: this.combo, gained, goldGain, scoreGain, perfect, trayRefilled, over: this.over };
   }
 }

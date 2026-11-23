@@ -6,39 +6,96 @@
 <meta name="theme-color" content="#140d1c" />
 <title>Dragonspire</title>
 <style>
+  :root{--gold:#f3d28a;--ink:#d8c9a8;--panel:rgba(30,16,10,.92);--edge:rgba(217,180,95,.55)}
   html,body{margin:0;height:100%;background:#140d1c;overflow:hidden;overscroll-behavior:none;
-    font-family:Georgia,"Times New Roman",serif;color:#fff;-webkit-user-select:none;user-select:none;
-    -webkit-tap-highlight-color:transparent}
+    font-family:Georgia,"Times New Roman",serif;color:#fff;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
   canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none;display:block}
-  .overlay{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;
-    background:rgba(12,6,10,.84);text-align:center;padding:24px;box-sizing:border-box}
+  #b{display:none}
+  .overlay{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+    background:rgba(12,6,10,.86);text-align:center;padding:24px;box-sizing:border-box;z-index:5}
   .overlay.show{display:flex}
-  h1{font-size:40px;margin:0;letter-spacing:5px;color:#f3d28a;text-shadow:0 2px 0 #5a3410,0 0 26px #ff5a1f}
-  h2{font-size:32px;margin:0;color:#f3d28a;letter-spacing:2px}
-  p{margin:0;color:#d8c9a8;max-width:320px;line-height:1.35}
-  button{font:inherit;font-weight:700;font-size:20px;padding:14px 38px;border:0;border-radius:14px;color:#2a1200;
-    background:linear-gradient(#f0c46a,#c08a2e);border:2px solid #5a3410;box-shadow:0 4px 0 #5a3410,0 8px 24px rgba(255,150,40,.3)}
+  h1{font-size:40px;margin:0;letter-spacing:5px;color:var(--gold);text-shadow:0 2px 0 #5a3410,0 0 26px #ff5a1f}
+  h2{font-size:30px;margin:0;color:var(--gold);letter-spacing:2px}
+  p{margin:0;color:var(--ink);max-width:320px;line-height:1.35}
+  button{font:inherit;font-weight:700;font-size:19px;padding:13px 32px;border-radius:14px;color:#2a1200;
+    background:linear-gradient(#f0c46a,#c08a2e);border:2px solid #5a3410;box-shadow:0 4px 0 #5a3410,0 8px 24px rgba(255,150,40,.25)}
   button:active{transform:translateY(3px);box-shadow:0 1px 0 #5a3410}
-  .row{display:flex;gap:18px;font-size:22px;font-weight:700}
-  .big{font-size:56px;font-weight:800}
+  button:disabled{filter:grayscale(1) brightness(.6)}
+  button.ghost{background:rgba(255,255,255,.06);color:var(--gold);border-color:var(--edge);box-shadow:none;font-size:16px;padding:10px 20px}
+  button.small{font-size:15px;padding:8px 14px;border-radius:10px;box-shadow:0 3px 0 #5a3410}
+  .row{display:flex;gap:16px;font-size:20px;font-weight:700;flex-wrap:wrap;justify-content:center}
+  .big{font-size:54px;font-weight:800}
+  .gold{color:#ffd34d}
+  /* ad placeholder */
+  #ad{background:#000;z-index:20}
+  #ad .tag{position:absolute;top:14px;left:14px;font:12px system-ui;color:#999;border:1px solid #555;padding:2px 6px;border-radius:4px}
+  #adClose{position:absolute;top:12px;right:12px}
+  /* build screen */
+  #build{justify-content:flex-start;padding:0;background:linear-gradient(#1d1230,#0f0a18)}
+  .bar{width:100%;box-sizing:border-box;display:flex;justify-content:space-around;padding:12px 8px;background:var(--panel);border-bottom:1px solid var(--edge);font-weight:700;font-size:16px}
+  .tabs{display:flex;gap:8px;padding:10px}
+  .tabs button{font-size:15px;padding:8px 16px}
+  .tabs button.off{background:rgba(255,255,255,.06);color:var(--gold);border-color:var(--edge);box-shadow:none}
+  #shop{flex:1;width:100%;max-width:460px;overflow-y:auto;padding:0 12px 12px;box-sizing:border-box;text-align:left}
+  .card{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--edge);border-radius:14px;padding:10px 12px;margin:8px 0}
+  .card canvas{position:static;width:46px;height:46px;flex:none}
+  .card .t{flex:1;min-width:0}
+  .card b{color:var(--gold);font-size:17px}
+  .card small{display:block;color:var(--ink);font-size:13px;margin-top:2px}
+  .card .cost{color:#ffd9a0;font-size:12px;margin-top:3px}
+  .sect{color:var(--gold);font-size:14px;letter-spacing:2px;margin:14px 2px 2px;opacity:.85}
+  .foot{width:100%;box-sizing:border-box;display:flex;gap:10px;justify-content:center;padding:12px 12px calc(12px + env(safe-area-inset-bottom));background:var(--panel);border-top:1px solid var(--edge)}
+  .foot button{flex:1;max-width:220px;font-size:17px;padding:12px 10px}
+  #readyBar{position:fixed;left:0;right:0;bottom:0;display:none;justify-content:center;gap:10px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));z-index:4}
+  #readyBar.show{display:flex}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
+<canvas id="b"></canvas>
+
 <div id="title" class="overlay show">
   <h1>DRAGONSPIRE</h1>
-  <p>Fit the blocks. Clear lines. Merge your units. Harvest fire, wood and iron for the war to come.</p>
+  <p>Fit the blocks to earn gold, fire and soldiers. Merge your soldiers to make them stronger. Then take your dragon to war.</p>
   <button id="play">Play</button>
+  <button id="toBuildFromTitle" class="ghost">Go to the war camp</button>
 </div>
+
 <div id="over" class="overlay">
   <h2>Round over</h2>
   <div class="big" id="finalScore">0</div>
   <p id="best"></p>
-  <div class="row"><span id="hFire"></span><span id="hWood"></span><span id="hIron"></span></div>
+  <div class="row"><span class="gold" id="hGold"></span><span id="hFire"></span><span id="hWood"></span><span id="hIron"></span></div>
   <p id="army"></p>
-  <p>Resources and recruits banked for the build screen.</p>
-  <button id="again">Play again</button>
+  <button id="double" class="ghost">Watch an ad: double gold and resources</button>
+  <button id="toBuild">To the war camp</button>
 </div>
+
+<div id="build" class="overlay">
+  <div class="bar"><span class="gold" id="pGold"></span><span id="pFire" style="color:#ffb347"></span><span id="pWood" style="color:#e0aa6c"></span><span id="pIron" style="color:#c9d4de"></span></div>
+  <div class="tabs"><button id="tabArmy">Army</button><button id="tabDragon" class="off">Dragon</button></div>
+  <div id="shop"></div>
+  <div class="foot"><button id="backToPuzzle" class="ghost">Earn more</button><button id="toWar">To battle</button></div>
+</div>
+
+<div id="readyBar"><button id="deployBack" class="ghost">Back</button><button id="ready">Ready</button></div>
+
+<div id="result" class="overlay">
+  <h2 id="resTitle"></h2>
+  <p id="resBody"></p>
+  <div class="row"><span class="gold" id="resGold"></span><span id="resTrophies"></span></div>
+  <button id="resNext">Back to the puzzle</button>
+  <button id="resCamp" class="ghost">War camp</button>
+</div>
+
+<div id="ad" class="overlay">
+  <span class="tag">TEST AD</span>
+  <button id="adClose" class="small" style="display:none">Close ✕</button>
+  <h2 style="color:#fff">Advertisement</h2>
+  <p style="color:#aaa">Placeholder. A real ad network plugs in here in the app build.</p>
+  <div class="big" id="adCount" style="color:#fff">5</div>
+</div>
+
 <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

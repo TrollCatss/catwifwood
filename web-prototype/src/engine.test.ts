@@ -163,3 +163,18 @@ describe('unit merging', () => {
     expect(res.scoreGain).toBe(1 + 40);
   });
 });
+
+describe('gold', () => {
+  it('pays per line, more on combos, plus perfect and merge bonuses', () => {
+    const game = new Game(11);
+    for (let c = 0; c < SIZE - 1; c++) { game.grid[0][c] = 'wood'; game.grid[7][c] = 'iron'; }
+    game.grid[7][0] = null; game.grid[7][SIZE - 1] = 'iron';
+    game.tray = [piece('dot'), piece('dot'), null];
+    const a = game.place(0, 0, SIZE - 1)!; // 1 line, combo 1
+    expect(a.goldGain).toBe(5);
+    const b = game.place(1, 7, 0)!; // 1 line, combo 2, board empty -> perfect
+    expect(b.perfect).toBe(true);
+    expect(b.goldGain).toBe(Math.round(5 * 1.5) + 25);
+    expect(game.gold).toBe(a.goldGain + b.goldGain);
+  });
+});
