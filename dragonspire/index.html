@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#140d1c" />
+<title>Dragonspire</title>
+<style>
+  html,body{margin:0;height:100%;background:#140d1c;overflow:hidden;overscroll-behavior:none;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#fff;-webkit-user-select:none;user-select:none;
+    -webkit-tap-highlight-color:transparent}
+  canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none;display:block}
+  .overlay{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+    background:rgba(14,8,22,.82);text-align:center;padding:24px;box-sizing:border-box}
+  .overlay.show{display:flex}
+  h1{font-size:44px;margin:0;letter-spacing:2px;color:#ffb347;text-shadow:0 0 24px #ff5a1f}
+  h2{font-size:32px;margin:0;color:#ffb347}
+  p{margin:0;color:#cbbfe0;max-width:300px}
+  button{font:inherit;font-weight:700;font-size:20px;padding:14px 38px;border:0;border-radius:14px;color:#2a1200;
+    background:linear-gradient(#ffc766,#ff8a2b);box-shadow:0 4px 0 #a64a0a,0 8px 24px rgba(255,120,30,.35)}
+  button:active{transform:translateY(3px);box-shadow:0 1px 0 #a64a0a}
+  .row{display:flex;gap:18px;font-size:22px;font-weight:700}
+  .big{font-size:56px;font-weight:800}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="title" class="overlay show">
+  <h1>DRAGONSPIRE</h1>
+  <p>Fit the blocks. Clear lines. Harvest fire, wood and iron for the war to come.</p>
+  <button id="play">Play</button>
+</div>
+<div id="over" class="overlay">
+  <h2>Round over</h2>
+  <div class="big" id="finalScore">0</div>
+  <p id="best"></p>
+  <div class="row"><span id="hFire"></span><span id="hWood"></span><span id="hIron"></span></div>
+  <p>Resources banked for the build screen.</p>
+  <button id="again">Play again</button>
+</div>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
